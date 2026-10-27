@@ -14,9 +14,9 @@ curl -fsSL https://raw.githubusercontent.com/ChengHongxu/dotfiles/main/bootstrap
 首次运行会问 Git 用户名、邮箱和本机分组（`work` / `homelab` 等）。
 脚本依次：
 
-1. 装 pixi，再用 pixi 装 adopt 和 chezmoi
+1. 检查可运行的系统 git；Linux 缺少时用 apt / dnf / yum 安装（需要 root 或 sudo），macOS 缺少时提示先装 Command Line Tools。然后装 pixi，再用 pixi 装 adopt 和 chezmoi
 2. `chezmoi init --apply`：clone 本仓库到 `~/.local/share/chezmoi`，链接配置文件
-3. `adopt init` + `adopt sync`：按 `packages.toml` 装系统包（apt / dnf / brew，会提示 sudo）、pixi global 工具、npm 全局包，再执行安装脚本（magpie）
+3. 验证 chezmoi 实际源目录对应的 Git 工作区，传给 `adopt init --repo`，再 `adopt sync`：按 `packages.toml` 装系统包（apt / dnf / brew，会提示 sudo）、pixi global 工具、npm 全局包，再执行安装脚本（magpie）
 4. `chezmoi apply`：下载 oh-my-zsh 和插件，把登录 shell 改成 zsh
 
 无人值守（cloud-init、没有终端）时不提问，用环境变量或默认值：
@@ -27,6 +27,27 @@ curl -fsSL .../bootstrap.sh | ADOPT_GROUPS=homelab DOTFILES_GIT_EMAIL=me@example
 
 可用变量：`DOTFILES_REPO`、`ADOPT_GROUPS`、`PIXI_REPOURL`、`DOTFILES_GIT_NAME`、`DOTFILES_GIT_EMAIL`。
 此时 adopt 只会用免密的 `sudo -n`，拿不到就跳过系统包，之后登录手动运行 `adopt sync` 补上。
+但 **git 是启动前置依赖，不能跳过**：缺少 git 且无法取得安装权限时，bootstrap 会停止；请预先安装系统 git。
+
+### 旧版 bootstrap 提示「不是 git 仓库」
+
+旧脚本把系统 git 留到 `adopt sync` 才安装，但 `adopt init` 已经需要外部 `git`。
+chezmoi 在没有外部 git 时可以用内置实现完成 clone，所以看到此报错不代表仓库真的损坏。
+adopt 0.3.0 会把 git 调用失败也报成「不是 git 仓库」。
+
+在 Ubuntu / Debian 上，可以先安装 git，再从中断处继续（不需要删除任何目录）：
+
+```sh
+sudo apt-get update && sudo apt-get install -y git
+export PATH="$HOME/.pixi/bin:$PATH"
+# 必须输出 true；如果仍报错，先处理 Git 的具体错误，不要删除源目录。
+git -C "$(chezmoi source-path)" rev-parse --is-inside-work-tree &&
+  adopt init --repo "$(git -C "$(chezmoi source-path)" rev-parse --show-toplevel)" &&
+  adopt sync && chezmoi apply
+```
+
+Rocky / Fedora 对应的安装命令是 `sudo dnf install -y git`。
+修复版 bootstrap 发布到 GitHub 后，也可以直接重跑页面顶部的一键命令；已有 pixi、adopt、chezmoi 和源目录会复用。
 
 ## 日常
 
