@@ -1,0 +1,5 @@
+# ~/.npmrc —— chezmoi 只在文件不存在时创建一次，之后是本机文件，不进仓库
+# （npm login、公司 registry 写的 token 都在这里）。
+# npm 全局包装到 ~/.local（命令在 ~/.local/bin），不放在 pixi 的 nodejs 环境里：
+# pixi 重建或升级那个环境时，装在里面的包会丢失。
+prefix=${HOME}/.local

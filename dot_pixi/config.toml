@@ -1,0 +1,7 @@
+# pixi 全局配置（所有机器共享；home 下是指向仓库的软链接）。
+# `pixi config ... --global` 会直接改这个文件。只属于本机的设置（如公司镜像）请写到
+# ~/.config/pixi/config.toml，pixi 会同时读取两者，该文件不进仓库。
+
+# 必须显式包含 conda-forge：对空配置执行 `pixi config append default-channels <url>`
+# 会得到只有 <url> 的列表，conda-forge 就丢了
+default-channels = ["https://chenghongxu.github.io/packages/conda", "conda-forge"]

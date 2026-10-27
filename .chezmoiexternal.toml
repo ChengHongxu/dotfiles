@@ -1,0 +1,23 @@
+# oh-my-zsh 及第三方插件：由 chezmoi 用 git clone 拉取并每周 pull，不再用 omz 自带的更新。
+# core.autocrlf=input：防止全局 autocrlf=true 把 zsh 脚本转成 CRLF 导致无法加载。
+
+[".oh-my-zsh"]
+    type = "git-repo"
+    url = "https://github.com/ohmyzsh/ohmyzsh.git"
+    refreshPeriod = "168h"
+    clone.args = ["--depth", "1", "--config", "core.autocrlf=input"]
+    pull.args = ["--ff-only"]
+
+[".oh-my-zsh/custom/plugins/zsh-autosuggestions"]
+    type = "git-repo"
+    url = "https://github.com/zsh-users/zsh-autosuggestions.git"
+    refreshPeriod = "168h"
+    clone.args = ["--depth", "1", "--config", "core.autocrlf=input"]
+    pull.args = ["--ff-only"]
+
+[".oh-my-zsh/custom/plugins/zsh-syntax-highlighting"]
+    type = "git-repo"
+    url = "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+    refreshPeriod = "168h"
+    clone.args = ["--depth", "1", "--config", "core.autocrlf=input"]
+    pull.args = ["--ff-only"]

@@ -1,0 +1,28 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# 显示 venv 激活的环境名
+[env_var.VENV_NAME]
+format = '[🐍 $env_value]($style) '
+style = 'bold yellow'
+
+# pixi 激活时会设置 CONDA_DEFAULT_ENV，关掉 conda 模块避免重复显示
+[conda]
+disabled = true
+
+# 有待认领的软件时显示数量（运行 adopt 处理）
+[custom.adopt]
+command = "adopt status --prompt"
+when = true
+shell = ["sh"]
+format = "([📦 $output]($style) )"
+style = "bold yellow"
+
+# 配置文件有未提交改动时提示（运行 adopt 时一起处理）
+[custom.dotfiles]
+when = '[ -n "$(git -C "${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi" status --porcelain 2>/dev/null)" ]'
+format = '[dotfiles✎]($style) '
+style = 'bold red'
+shell = ['sh']
+
+[cmd_duration]
+min_time = 2000

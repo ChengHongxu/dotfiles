@@ -1,0 +1,2 @@
+# 无论各机器的 core.autocrlf 怎么设，检出时一律 LF（zsh / bash 脚本遇到 CRLF 会无法执行）
+* text=auto eol=lf

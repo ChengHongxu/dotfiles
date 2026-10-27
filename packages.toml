@@ -1,0 +1,115 @@
+# 共享软件清单，由 adopt 维护（https://github.com/ChengHongxu/adopt）。
+# 平时用原生命令装软件，然后运行 adopt 认领；也可以手动编辑，注释会保留。
+#
+# [system.<名字>]      系统包（apt / dnf / brew）；默认各包管理器里同名
+#   dnf = "别名"        某个包管理器里名字不同
+#   brew = false        这个包管理器不装
+#   groups = ["work"]   只装到这些分组的机器（不写就是所有机器）
+# [pixi.<env>]         pixi global 环境，原样保存 pixi-global.toml 里的表
+# [npm."<包名>"]       npm 全局包，键就是 npm 包名；可选 version = "^1.2"（不写就是 latest）
+# [script.<名字>]      没有包管理器可用的软件：creates 存在就算已装，否则执行 install（sh -c）；
+#                      只在 install 改了时重跑，remove 可选。adopt 发现不了，只能手写
+#
+# 分工：要和操作系统、公司 IT 配置（/etc/gitconfig、系统 CA）、钥匙串集成的基础工具放 system；
+# 其余 CLI 工具优先放 pixi（新版本、跨平台一致、不需要 sudo）；只在 npm 上发布的放 npm；
+# 只有官方安装脚本的放 script。
+version = 1
+
+# ---- 系统软件 ----
+# macOS 上 git 来自 Xcode Command Line Tools，zsh / curl / ssh 系统自带，所以 brew = false
+
+[system.git]
+brew = false
+
+[system.zsh]
+brew = false
+
+[system.curl]
+brew = false
+
+[system.ca-certificates]
+brew = false
+
+[system.openssh-client]
+dnf = "openssh-clients"
+brew = false
+
+# 编译工具链：Debian 系是 build-essential 元包，Fedora 系拆成 gcc 和 make
+[system.build-essential]
+dnf = "gcc"
+brew = false
+
+[system.make]
+apt = false
+brew = false
+
+# ---- pixi global ----
+
+[pixi.adopt]
+channels = ["https://chenghongxu.github.io/packages/conda", "conda-forge"]
+dependencies = { adopt = "*" }
+exposed = { adopt = "adopt" }
+
+[pixi.venv]
+channels = ["https://chenghongxu.github.io/packages/conda", "conda-forge"]
+dependencies = { venv = "*" }
+exposed = { venv = "venv" }
+
+[pixi.chezmoi]
+channels = ["conda-forge"]
+dependencies = { chezmoi = "*" }
+exposed = { chezmoi = "chezmoi" }
+
+[pixi.starship]
+channels = ["conda-forge"]
+dependencies = { starship = "*" }
+exposed = { starship = "starship" }
+
+# node / npm，供下面的 [npm.*] 使用。锁在 LTS 大版本，避免 pixi global update 跳到新的奇数版本
+[pixi.nodejs]
+channels = ["conda-forge"]
+dependencies = { nodejs = "24.*" }
+exposed = { node = "node", npm = "npm", npx = "npx" }
+
+# uv 不负责环境管理，只留给 uv 项目 / uvx / PEP 723 脚本
+[pixi.uv]
+channels = ["conda-forge"]
+dependencies = { uv = "*" }
+exposed = { uv = "uv", uvx = "uvx" }
+
+[pixi.ripgrep]
+channels = ["conda-forge"]
+dependencies = { ripgrep = "*" }
+exposed = { rg = "rg" }
+
+[pixi.fd-find]
+channels = ["conda-forge"]
+dependencies = { fd-find = "*" }
+exposed = { fd = "fd" }
+
+[pixi.fzf]
+channels = ["conda-forge"]
+dependencies = { fzf = "*" }
+exposed = { fzf = "fzf" }
+
+[pixi.jq]
+channels = ["conda-forge"]
+dependencies = { jq = "*" }
+exposed = { jq = "jq" }
+
+# ---- npm 全局包 ----
+# 装到 ~/.npmrc 里的 prefix（~/.local），不在 pixi 的 nodejs 环境里，升级 node 不会丢。
+# adopt 不主动升级它们：claude 会自我更新，其他用 npm update -g
+
+[npm."@anthropic-ai/claude-code"]
+
+[npm."@openai/codex"]
+
+# ---- 安装脚本 ----
+
+# magpie 不在 conda-forge / npm 上，只有官方安装脚本（装到 ~/.local/bin，之后自行更新）。
+# remove 只清 Linux 上的文件；macOS 上还要手动删 /Applications/magpie.app
+[script.magpie]
+creates = "~/.local/bin/magpie"
+install = "curl -fsSL https://usemagpie.ai/install.sh | sh"
+remove = "rm -f ~/.local/bin/magpie ~/.local/share/applications/magpie.desktop ~/.local/share/icons/hicolor/256x256/apps/magpie.png"

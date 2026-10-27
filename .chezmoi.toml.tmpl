@@ -1,0 +1,17 @@
+{{- /* 首次 chezmoi init 时询问一次，答案保存在 ~/.config/chezmoi/chezmoi.toml。
+       无人值守（cloud-init）时用环境变量预填：DOTFILES_GIT_NAME / DOTFILES_GIT_EMAIL */ -}}
+{{- $name := promptStringOnce . "name" "Git 用户名" (env "DOTFILES_GIT_NAME" | default "chenghongxu") -}}
+{{- $email := promptStringOnce . "email" "Git 邮箱" (env "DOTFILES_GIT_EMAIL" | default "chenghongxu@hotmail.com") -}}
+
+# symlink 模式：普通文件在 home 下是指向仓库的软链接，
+# 任何工具（pixi config --global、安装脚本改 ~/.zshrc……）的改动都直接落在仓库里，运行 adopt 时一起提交。
+# 模板（*.tmpl）和脚本仍然是复制。软件清单（packages.toml）由 adopt 管理，不经过 chezmoi。
+mode = "symlink"
+
+[data]
+    name = {{ $name | quote }}
+    email = {{ $email | quote }}
+
+[git]
+    autoCommit = false
+    autoPush = false
