@@ -97,6 +97,11 @@ channels = ["conda-forge"]
 dependencies = { jq = "*" }
 exposed = { jq = "jq" }
 
+[pixi.setproxy]
+channels = ["https://chenghongxu.github.io/packages/conda", "conda-forge"]
+dependencies = { setproxy = "*" }
+exposed = { setproxy = "setproxy" }
+
 # ---- npm 全局包 ----
 # 装到 ~/.npmrc 里的 prefix（~/.local），不在 pixi 的 nodejs 环境里，升级 node 不会丢。
 # adopt 不主动升级它们：claude 会自我更新，其他用 npm update -g
